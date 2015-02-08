@@ -2,16 +2,16 @@
 
 query neo4j using cypher in org-mode blocks
 
-#+BEGIN_SRC cypher :results output
-match (user:User {name: "root"})
-return user
-#+END_SRC
-
-#+RESULTS:
-: +-------------------------------------------------------+
-: | user                                                  |
-: +-------------------------------------------------------+
-: | Node[38]{name:"root",role:"admin",last:1423315204024} |
-: +-------------------------------------------------------+
-: 1 row
-: 42 ms
+: #+BEGIN_SRC cypher :results output
+: match (user:User {name: "root"})
+: return user
+: #+END_SRC
+: 
+: #+RESULTS:
+: : +-------------------------------------------------------+
+: : | user                                                  |
+: : +-------------------------------------------------------+
+: : | Node[38]{name:"root",role:"admin",last:1423315204024} |
+: : +-------------------------------------------------------+
+: : 1 row
+: : 42 ms
