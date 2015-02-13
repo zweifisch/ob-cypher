@@ -2,6 +2,17 @@
 
 query neo4j using cypher in org-mode blocks
 
+** options
+
+| option       | example                                      |
+|--------------+----------------------------------------------|
+| =:host=      | =127.0.0.1=                                  |
+| =:port=      | =1337=                                       |
+| =:http-port= | =7474=                                       |
+| =:file=      | requires curl and graphviz =:file graph.png= |
+
+** examples
+
 : #+BEGIN_SRC cypher
 : CREATE (matrix1:Movie { title : 'The Matrix', year : '1999-03-31' })
 : CREATE (matrix2:Movie { title : 'The Matrix Reloaded', year : '2003-05-07' })
