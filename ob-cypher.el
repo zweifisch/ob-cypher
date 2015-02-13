@@ -45,9 +45,10 @@
                 ("body" . ,(s-join "\\n" (-map 'ob-cypher/property (cdr (assoc 'properties node)))))))))
 
 (defun ob-cypher/rel-to-dot (rel)
-  (s-format "n${start} -> n${end}" 'aget
+  (s-format "n${start} -> n${end} [label = ${label}]" 'aget
             `(("start" . ,(cdr (assoc 'startNode rel)))
-              ("end" . ,(cdr (assoc 'endNode rel))))))
+              ("end" . ,(cdr (assoc 'endNode rel)))
+              ("label" . ,(cdr (assoc 'type rel))))))
 
 (defun ob-cypher/json-to-dot (output)
   (let* ((parsed (json-read-from-string output))
@@ -55,20 +56,27 @@
          (data
           (if (> (length results) 0)
               (cdr (assoc 'data (elt results 0)))))
-         (graph
-          (if data (cdr (assoc 'graph (elt data 0)))))
-         (rels (cdr (assoc 'relationships graph)))
-         (nodes (cdr (assoc 'nodes graph))))
+         (graphs (-map (lambda (graph) (cdr (assoc 'graph graph)))
+                       data))
+         (rels (-mapcat
+                 (lambda (graph)
+                   (append (cdr (assoc 'relationships graph)) nil))
+                 graphs))
+         (nodes (-mapcat
+                 (lambda (graph)
+                   (append (cdr (assoc 'nodes graph)) nil))
+                 graphs)))
     (s-format "digraph {\nnode[shape=Mrecord]\n${nodes}\n${rels}\n} " 'aget
               `(("nodes" . ,(s-join "\n" (-map 'ob-cypher/node-to-dot nodes)))
                 ("rels" . ,(s-join "\n" (-map 'ob-cypher/rel-to-dot rels)))))))
 
 (defun ob-cypher/query (statement host port)
-  (let* ((body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\"]}]}"
+  (let* ((statement (s-replace "\"" "\\\"" statement))
+         (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\"]}]}"
                        (s-join " " (s-lines statement))))
-          (url (format "http://%s:%d/db/data/transaction/commit" host port))
-          (tmp (org-babel-temp-file "curl-"))
-          (cmd (format "curl -sH 'Accept: application/json; charset=UTF-8' -H 'Content-Type: application/json' -d@'%s' '%s'" tmp url)))
+         (url (format "http://%s:%d/db/data/transaction/commit" host port))
+         (tmp (org-babel-temp-file "curl-"))
+         (cmd (format "curl -sH 'Accept: application/json; charset=UTF-8' -H 'Content-Type: application/json' -d@'%s' '%s'" tmp url)))
     (message cmd)
     (with-temp-file tmp
       (insert body))
