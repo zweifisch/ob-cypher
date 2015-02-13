@@ -2,7 +2,7 @@
 
 query neo4j using cypher in org-mode blocks
 
-: #+BEGIN_SRC cypher :results output
+: #+BEGIN_SRC cypher
 : match (user:User {name: "root"})
 : return user
 : #+END_SRC
@@ -15,3 +15,8 @@ query neo4j using cypher in org-mode blocks
 : : +-------------------------------------------------------+
 : : 1 row
 : : 42 ms
+
+#+BEGIN_SRC cypher :file graph.png
+match (user:User {name: "root"})
+return user
+#+END_SRC
