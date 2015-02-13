@@ -3,20 +3,39 @@
 query neo4j using cypher in org-mode blocks
 
 : #+BEGIN_SRC cypher
-: match (user:User {name: "root"})
-: return user
+: CREATE (matrix1:Movie { title : 'The Matrix', year : '1999-03-31' })
+: CREATE (matrix2:Movie { title : 'The Matrix Reloaded', year : '2003-05-07' })
+: CREATE (matrix3:Movie { title : 'The Matrix Revolutions', year : '2003-10-27' })
+: CREATE (keanu:Actor { name:'Keanu Reeves' })
+: CREATE (laurence:Actor { name:'Laurence Fishburne' })
+: CREATE (carrieanne:Actor { name:'Carrie-Anne Moss' })
+: CREATE (keanu)-[:ACTS_IN { role : 'Neo' }]->(matrix1)
+: CREATE (keanu)-[:ACTS_IN { role : 'Neo' }]->(matrix2)
+: CREATE (keanu)-[:ACTS_IN { role : 'Neo' }]->(matrix3)
+: CREATE (laurence)-[:ACTS_IN { role : 'Morpheus' }]->(matrix1)
+: CREATE (laurence)-[:ACTS_IN { role : 'Morpheus' }]->(matrix2)
+: CREATE (laurence)-[:ACTS_IN { role : 'Morpheus' }]->(matrix3)
+: CREATE (carrieanne)-[:ACTS_IN { role : 'Trinity' }]->(matrix1)
+: CREATE (carrieanne)-[:ACTS_IN { role : 'Trinity' }]->(matrix2)
+: CREATE (carrieanne)-[:ACTS_IN { role : 'Trinity' }]->(matrix3)
 : #+END_SRC
-: 
-: #+RESULTS:
-: : +-------------------------------------------------------+
-: : | user                                                  |
-: : +-------------------------------------------------------+
-: : | Node[38]{name:"root",role:"admin",last:1423315204024} |
-: : +-------------------------------------------------------+
-: : 1 row
-: : 42 ms
 
-#+BEGIN_SRC cypher :file graph.png
-match (user:User {name: "root"})
-return user
-#+END_SRC
+: #+RESULTS:
+: : +-------------------+
+: : | No data returned. |
+: : +-------------------+
+: : Nodes created: 6
+: : Relationships created: 9
+: : Properties set: 18
+: : Labels added: 6
+: : 1353 ms
+
+: #+BEGIN_SRC cypher :file movie.png
+: match (actor)-[r]->(movie)
+: where type(r) = "ACTS_IN"
+: return actor, r, movie
+: #+END_SRC
+
+: #+RESULTS:
+
+[[http://i.imgur.com/dpCyOo5.png]]
