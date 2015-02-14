@@ -7,7 +7,7 @@
 ;; Keywords: org babel cypher neo4j
 ;; Version: 0.0.1
 ;; Created: 8th Feb 2015
-;; Package-Requires: ((s "1.9.0") (cypher "0.0.6") (dash "2.10.0") (dash-functional "1.2.0"))
+;; Package-Requires: ((s "1.9.0") (cypher-mode "0.0.6") (dash "2.10.0") (dash-functional "1.2.0"))
 
 ;;; Commentary:
 ;;
