@@ -101,7 +101,7 @@
                         `(("host" . ,host)
                           ("port" . ,(int-to-string port))
                           ("file" . ,tmp))))
-         (result (progn (with-temp-file tmp (insert body))
+         (result (progn (with-temp-file tmp (insert statement))
                         (shell-command-to-string cmd))))
     (message cmd)
     (if (string= "output" result-type) result (ob-cypher/table result))))

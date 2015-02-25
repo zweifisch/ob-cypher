@@ -1,5 +1,7 @@
 * ob-cypher
 
+[[http://melpa.org/#/ob-cypher][file:http://melpa.org/packages/ob-cypher-badge.svg]]
+
 query neo4j using cypher in org-mode blocks
 
 ** options
@@ -42,9 +44,8 @@ query neo4j using cypher in org-mode blocks
 : : 1353 ms
 
 : #+BEGIN_SRC cypher :file movie.png
-: match (actor)-[r]->(movie)
-: where type(r) = "ACTS_IN"
-: return actor, r, movie
+: match (actor)-[r:ACTS_IN]->(movie)
+: return *
 : #+END_SRC
 
 : #+RESULTS:
