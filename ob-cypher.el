@@ -120,9 +120,9 @@
     (if (string= "output" result-type) result (ob-cypher/table result))))
 
 (defun org-babel-execute:cypher (body params)
-  (let* ((host (or (assoc :host params) "127.0.0.1"))
-         (port (or (assoc :host params) 1337))
-         (http-port (or (assoc :host params) 7474))
+  (let* ((host (or (cdr (assoc :host params)) "127.0.0.1"))
+         (port (or (cdr (assoc :port params)) 1337))
+         (http-port (or (cdr (assoc :http-port params)) 7474))
          (result-type (cdr (assoc :result-type params)))
          (output (cdr (assoc :file params)))
          (body (if (s-ends-with? ";" body) body (s-append ";" body))))
