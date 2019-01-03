@@ -124,7 +124,7 @@
          (port (or (cdr (assoc :port params) ) 1337))
          (username (or (cdr (assoc :username params) ) "neo4j"))
          (password (or (cdr (assoc :password params) ) "neo4j"))
-	 (authstring username) ;FIXME
+	 (authstring (base64-encode-string (concat username ":" password)))
          (http-port (or (cdr (assoc :http-port params) ) 7474))
          (result-type (cdr (assoc :result-type params)))
          (output (cdr (assoc :file params)))
