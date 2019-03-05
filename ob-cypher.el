@@ -83,6 +83,19 @@
               `(("nodes" . ,(s-join "\n" (-map 'ob-cypher/node-to-dot nodes)))
                 ("rels" . ,(s-join "\n" (-map 'ob-cypher/rel-to-dot rels)))))))
 
+(defun ob-cypher/json-to-table (output)
+  (let* ((json-array-type 'list)
+	 (parsed (json-read-from-string output))
+         (results (cdr (assoc 'results parsed)))
+         (data
+          (if (> (length results) 0)
+              (cdr (assoc 'data (elt results 0)))))
+         (rows (-map (lambda (row) (cdr (assoc 'row row)))
+                       data)))
+   rows
+    ))
+
+
 (defun ob-cypher/query (statement host port authstring)
   (let* ((statement (s-replace "\"" "\\\"" statement))
          (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\",\"row\"]}]}"
@@ -110,11 +123,11 @@
 
 (defun ob-cypher/rest (statement host port authstring)
   (let* ((tmp (org-babel-temp-file "dot-"))
-         (result (ob-cypher/query statement host port authstring)))
+         (result (ob-cypher/query statement host port authstring))
+         (tbl (ob-cypher/json-to-table result))
+	 )
     (message result)
-    (with-temp-file tmp
-      (insert result))
-    result))
+    tbl))
 
 (defun ob-cypher/shell (statement host port result-type)
   (let* ((tmp (org-babel-temp-file "cypher-"))
