@@ -108,6 +108,14 @@
     (org-babel-eval cmd "")
     nil))
 
+(defun ob-cypher/rest (statement host port authstring)
+  (let* ((tmp (org-babel-temp-file "dot-"))
+         (result (ob-cypher/query statement host port authstring)))
+    (message result)
+    (with-temp-file tmp
+      (insert result))
+    result))
+
 (defun ob-cypher/shell (statement host port result-type)
   (let* ((tmp (org-babel-temp-file "cypher-"))
          (cmd (s-format "neo4j-shell -host ${host} -port ${port} -file ${file}" 'aget
@@ -129,7 +137,7 @@
          (result-type (cdr (assoc :result-type params)))
          (output (cdr (assoc :file params)))
          (body (if (s-ends-with? ";" body) body (s-append ";" body))))
-    (if output (ob-cypher/dot body host http-port output authstring) (ob-cypher/shell body host port result-type))))
+    (if output (ob-cypher/dot body host http-port output authstring) (ob-cypher/rest body host port authstring))))
 
 (provide 'ob-cypher)
 ;;; ob-cypher.el ends here
