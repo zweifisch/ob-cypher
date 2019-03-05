@@ -90,9 +90,13 @@
          (data
           (if (> (length results) 0)
               (cdr (assoc 'data (elt results 0)))))
+	 (columns
+          (if (> (length results) 0)
+              (cdr (assoc 'columns (elt results 0)))))
+
          (rows (-map (lambda (row) (cdr (assoc 'row row)))
                        data)))
-   rows
+   (cons columns (cons 'hline rows))
     ))
 
 
