@@ -85,7 +85,7 @@
 
 (defun ob-cypher/query (statement host port authstring)
   (let* ((statement (s-replace "\"" "\\\"" statement))
-         (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\"]}]}"
+         (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\",\"row\"]}]}"
                        (s-join " " (s-lines statement))))
          (url (format "http://%s:%d/db/data/transaction/commit" host port))
          (tmp (org-babel-temp-file "curl-"))
