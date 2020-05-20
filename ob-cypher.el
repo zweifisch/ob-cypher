@@ -149,7 +149,7 @@
          (body (if (s-ends-with? ";" body) body (s-append ";" body))))
     (if output
         (ob-cypher/dot body host http-port output authstring)
-      (ob-cypher/rest body host port authstring))))
+      (ob-cypher/rest body host http-port authstring))))
 
 (provide 'ob-cypher)
 ;;; ob-cypher.el ends here
