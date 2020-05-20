@@ -83,21 +83,38 @@
               `(("nodes" . ,(s-join "\n" (-map 'ob-cypher/node-to-dot nodes)))
                 ("rels" . ,(s-join "\n" (-map 'ob-cypher/rel-to-dot rels)))))))
 
-(defun ob-cypher/query (statement host port)
+(defun ob-cypher/json-to-table (output)
+  (let* ((json-array-type 'list)
+	 (parsed (json-read-from-string output))
+         (results (cdr (assoc 'results parsed)))
+         (data
+          (if (> (length results) 0)
+              (cdr (assoc 'data (elt results 0)))))
+	 (columns
+          (if (> (length results) 0)
+              (cdr (assoc 'columns (elt results 0)))))
+
+         (rows (-map (lambda (row) (cdr (assoc 'row row)))
+                       data)))
+   (cons columns (cons 'hline rows))
+    ))
+
+
+(defun ob-cypher/query (statement host port authstring)
   (let* ((statement (s-replace "\"" "\\\"" statement))
-         (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\"]}]}"
+         (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\",\"row\"]}]}"
                        (s-join " " (s-lines statement))))
          (url (format "http://%s:%d/db/data/transaction/commit" host port))
          (tmp (org-babel-temp-file "curl-"))
-         (cmd (format "curl -sH 'Accept: application/json; charset=UTF-8' -H 'Content-Type: application/json' -d@'%s' '%s'" tmp url)))
+         (cmd (format "curl -sH 'Accept: application/json; charset=UTF-8' -H 'Content-Type: application/json' -H 'Authorization: Basic %s' -d@'%s' '%s'" authstring tmp url)))
     (message cmd)
     (with-temp-file tmp
       (insert body))
     (shell-command-to-string cmd)))
 
-(defun ob-cypher/dot (statement host port output)
+(defun ob-cypher/dot (statement host port output authstring)
   (let* ((tmp (org-babel-temp-file "dot-"))
-         (result (ob-cypher/query statement host port))
+         (result (ob-cypher/query statement host port authstring))
          (dot (ob-cypher/json-to-dot result))
          (cmd (format "dot -T%s -o %s %s" (file-name-extension output) output tmp)))
     (message result)
@@ -107,6 +124,14 @@
       (insert dot))
     (org-babel-eval cmd "")
     nil))
+
+(defun ob-cypher/rest (statement host port authstring)
+  (let* ((tmp (org-babel-temp-file "dot-"))
+         (result (ob-cypher/query statement host port authstring))
+         (tbl (ob-cypher/json-to-table result))
+	 )
+    (message result)
+    tbl))
 
 (defun ob-cypher/shell (statement host port result-type)
   (let* ((tmp (org-babel-temp-file "cypher-"))
@@ -120,13 +145,16 @@
     (if (string= "output" result-type) result (ob-cypher/table result))))
 
 (defun org-babel-execute:cypher (body params)
-  (let* ((host (or (assoc :host params) "127.0.0.1"))
-         (port (or (assoc :host params) 1337))
-         (http-port (or (assoc :host params) 7474))
+  (let* ((host (or (cdr (assoc :host params) ) "127.0.0.1"))
+         (port (or (cdr (assoc :port params) ) 1337))
+         (username (or (cdr (assoc :username params) ) "neo4j"))
+         (password (or (cdr (assoc :password params) ) "neo4j"))
+	 (authstring (base64-encode-string (concat username ":" password)))
+         (http-port (or (cdr (assoc :http-port params) ) 7474))
          (result-type (cdr (assoc :result-type params)))
          (output (cdr (assoc :file params)))
          (body (if (s-ends-with? ";" body) body (s-append ";" body))))
-    (if output (ob-cypher/dot body host http-port output) (ob-cypher/shell body host port result-type))))
+    (if output (ob-cypher/dot body host http-port output authstring) (ob-cypher/rest body host port authstring))))
 
 (provide 'ob-cypher)
 ;;; ob-cypher.el ends here

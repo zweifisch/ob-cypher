@@ -11,6 +11,8 @@ query neo4j using cypher in org-mode blocks
 | =:host=      | =127.0.0.1=                                  |
 | =:port=      | =1337=                                       |
 | =:http-port= | =7474=                                       |
+| =:username=  | ="neo4j"=                                    |
+| =:password=  | ="neo4j"=                                    |
 | =:file=      | requires curl and graphviz =:file graph.png= |
 
 ** examples
