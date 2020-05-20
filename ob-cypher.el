@@ -99,7 +99,7 @@
          (body (format "{\"statements\":[{\"statement\":\"%s\",\"resultDataContents\":[\"graph\",\"row\"]}]}"
                        (s-join " " (s-lines statement))))
          (url (format "http://%s:%d/db/data/transaction/commit" host port))
-         (tmp (org-babel-temp-file "curl-"))
+         (tmp (org-babel-temp-file "cypher-curl-"))
          (cmd (format "curl -sH 'Accept: application/json; charset=UTF-8' -H 'Content-Type: application/json' -H 'Authorization: Basic %s' -d@'%s' '%s'" authstring tmp url)))
     (message cmd)
     (with-temp-file tmp
@@ -107,7 +107,7 @@
     (shell-command-to-string cmd)))
 
 (defun ob-cypher/dot (statement host port output authstring)
-  (let* ((tmp (org-babel-temp-file "dot-"))
+  (let* ((tmp (org-babel-temp-file "cypher-dot-"))
          (result (ob-cypher/query statement host port authstring))
          (dot (ob-cypher/json-to-dot result))
          (cmd (format "dot -T%s -o %s %s" (file-name-extension output) output tmp)))
@@ -120,14 +120,14 @@
     nil))
 
 (defun ob-cypher/rest (statement host port authstring)
-  (let* ((tmp (org-babel-temp-file "dot-"))
+  (let* ((tmp (org-babel-temp-file "cypher-rest-"))
          (result (ob-cypher/query statement host port authstring))
          (tbl (ob-cypher/json-to-table result)))
     (message result)
     tbl))
 
 (defun ob-cypher/shell (statement host port result-type)
-  (let* ((tmp (org-babel-temp-file "cypher-"))
+  (let* ((tmp (org-babel-temp-file "cypher-shell-"))
          (cmd (s-format "neo4j-shell -host ${host} -port ${port} -file ${file}" 'aget
                         `(("host" . ,host)
                           ("port" . ,(int-to-string port))
