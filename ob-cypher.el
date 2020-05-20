@@ -66,15 +66,14 @@
 (defun ob-cypher/json-to-dot (output)
   (let* ((parsed (json-read-from-string output))
          (results (cdr (assoc 'results parsed)))
-         (data
-          (if (> (length results) 0)
-              (cdr (assoc 'data (elt results 0)))))
+         (data (if (> (length results) 0)
+                   (cdr (assoc 'data (elt results 0)))))
          (graphs (-map (lambda (graph) (cdr (assoc 'graph graph)))
                        data))
          (rels (-mapcat
-                 (lambda (graph)
-                   (append (cdr (assoc 'relationships graph)) nil))
-                 graphs))
+                (lambda (graph)
+                  (append (cdr (assoc 'relationships graph)) nil))
+                graphs))
          (nodes (-mapcat
                  (lambda (graph)
                    (append (cdr (assoc 'nodes graph)) nil))
@@ -85,19 +84,14 @@
 
 (defun ob-cypher/json-to-table (output)
   (let* ((json-array-type 'list)
-	 (parsed (json-read-from-string output))
+	       (parsed (json-read-from-string output))
          (results (cdr (assoc 'results parsed)))
-         (data
-          (if (> (length results) 0)
-              (cdr (assoc 'data (elt results 0)))))
-	 (columns
-          (if (> (length results) 0)
-              (cdr (assoc 'columns (elt results 0)))))
-
-         (rows (-map (lambda (row) (cdr (assoc 'row row)))
-                       data)))
-   (cons columns (cons 'hline rows))
-    ))
+         (data (if (> (length results) 0)
+                   (cdr (assoc 'data (elt results 0)))))
+	       (columns (if (> (length results) 0)
+                      (cdr (assoc 'columns (elt results 0)))))
+         (rows (-map (lambda (row) (cdr (assoc 'row row))) data)))
+    (cons columns (cons 'hline rows))))
 
 
 (defun ob-cypher/query (statement host port authstring)
@@ -128,8 +122,7 @@
 (defun ob-cypher/rest (statement host port authstring)
   (let* ((tmp (org-babel-temp-file "dot-"))
          (result (ob-cypher/query statement host port authstring))
-         (tbl (ob-cypher/json-to-table result))
-	 )
+         (tbl (ob-cypher/json-to-table result)))
     (message result)
     tbl))
 
@@ -145,16 +138,18 @@
     (if (string= "output" result-type) result (ob-cypher/table result))))
 
 (defun org-babel-execute:cypher (body params)
-  (let* ((host (or (cdr (assoc :host params) ) "127.0.0.1"))
-         (port (or (cdr (assoc :port params) ) 1337))
-         (username (or (cdr (assoc :username params) ) "neo4j"))
-         (password (or (cdr (assoc :password params) ) "neo4j"))
-	 (authstring (base64-encode-string (concat username ":" password)))
-         (http-port (or (cdr (assoc :http-port params) ) 7474))
+  (let* ((host (or (cdr (assoc :host params)) "127.0.0.1"))
+         (port (or (cdr (assoc :port params)) 1337))
+         (username (or (cdr (assoc :username params)) "neo4j"))
+         (password (or (cdr (assoc :password params)) "neo4j"))
+	       (authstring (base64-encode-string (concat username ":" password)))
+         (http-port (or (cdr (assoc :http-port params)) 7474))
          (result-type (cdr (assoc :result-type params)))
          (output (cdr (assoc :file params)))
          (body (if (s-ends-with? ";" body) body (s-append ";" body))))
-    (if output (ob-cypher/dot body host http-port output authstring) (ob-cypher/rest body host port authstring))))
+    (if output
+        (ob-cypher/dot body host http-port output authstring)
+      (ob-cypher/rest body host port authstring))))
 
 (provide 'ob-cypher)
 ;;; ob-cypher.el ends here
