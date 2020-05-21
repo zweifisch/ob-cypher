@@ -4,6 +4,17 @@
 
 query neo4j using cypher in org-mode blocks
 
+** install
+
+#+begin_src emacs-lisp
+(use-package ob-cypher
+  :ensure t
+  :config
+  (add-to-list 'org-babel-load-languages '(cypher . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+  (add-to-list 'org-babel-tangle-lang-exts '("cypher" . "cypher")))
+#+end_src
+
 ** options
 
 | option       | example                                      |
